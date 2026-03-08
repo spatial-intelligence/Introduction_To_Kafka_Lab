@@ -27,7 +27,7 @@ Task 1
 5. ./kafka-topics.sh --create --topic <a topic name> --bootstrap-server broker:29092 //creates a topic for the kafka broker to produce and consume messages.
 5.1. ./kafka-topics.sh --list --bootstrap-server broker:29092 //check topics that are created
 6. ./kafka-console-producer.sh  --topic <topic name chosen previously> --bootstrap-server broker:29092 // start a producer console with this command
-7. write whatever messages to then be consumed and press enter for each message, press CTROL -C to finish
+7. write whatever messages to then be consumed and press enter for each message, press CTRL + C to finish
 8. open new terminal 
 9. write step 4 again
 10. ./kafka-console-consumer.sh --topic <topic name chosen previously> --from-beginning --bootstrap-server broker:29092  //consumes the messages from the chosen topic
@@ -36,3 +36,13 @@ where the example was gotten from:
 https://developer.confluent.io/confluent-tutorials/kafka-on-docker/?utm_medium=sem&utm_source=google&utm_campaign=ch.sem_br.nonbrand_tp.prs_tgt.dsa_mt.dsa_rgn.emea_sbrgn.uki_lng.eng_dv.all_con.confluent-developer&utm_term=&creative=&device=c&placement=&gad_source=1&gad_campaignid=19560855027&gbraid=0AAAAADRv2c3SGbEo5llRvcdu1HsLIjo56&gclid=CjwKCAiAtq_NBhA_EiwA78nNWEr4Qv6n3Cx9VrBJVuqtQCSGg2yhUCyuibhQ5gw1xKXar--W6a_GchoCY9EQAvD_BwE
 
 Task 2
+1. docker compose up -d
+2. docker logs broker
+3. ./kafka-topics.sh --create --topic <a topic name> --bootstrap-server broker:29092
+4. exit
+5. docker exec broker /opt/kafka/bin/kafka-console-consumer.sh --topic fileTransfering --bootstrap-server broker:29092 --max-messages 4 > test2.txt
+6. leave this terminal open and open a second one
+7. open the txt file called test2.txt, you'll see its currently empty
+8. cat test.txt | docker exec -i broker /opt/kafka/bin/kafka-console-producer.sh --topic fileTransfering --bootstrap-server broker:29092
+9. look at test2.txt, you'll see the file has the same contents as test.txt
+10. change the text from test.txt into something different
