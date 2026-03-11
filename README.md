@@ -51,7 +51,6 @@ Task 2
 2. docker logs broker
 3. docker exec -it -w /opt/kafka/bin broker ./kafka-topics.sh --create --topic <topic name chosen> --bootstrap-server broker:29092
 3.1. docker exec -it -w /opt/kafka/bin broker ./kafka-topics.sh --list --bootstrap-server broker:29092 //check topics that are created
-4. exit
 5. docker exec broker /opt/kafka/bin/kafka-console-consumer.sh --topic <topic name chosen previously> --bootstrap-server broker:29092> test2.txt
 6. leave this terminal open and open a second one
 7. open the txt file called test2.txt, you'll see its currently empty
@@ -62,6 +61,15 @@ Task 2
 10. change the text from test.txt into something different and if 5 seconds have passed, you can see them into test2.txt, or if you chose the command in step 8.2. just repaste it and the contents will be sent to the topic.
 
 Task 3
+1. docker compose up -d
+2. docker logs broker
+3. docker exec -it -w /opt/kafka/bin broker ./kafka-topics.sh --create --topic <topic name chosen> --bootstrap-server broker:29092
+4. curl -s "https://feeds.bbci.co.uk/news/rss.xml" | grep "<title>" | sed 's/<title>//g; s/<\/title>//g; s/^[ \t]*//; s/[ \t]*$//' | docker exec -i broker /opt/kafka/bin/kafka-console-producer.sh --topic rssfeed --bootstrap-server broker:29092
+5. docker exec broker /opt/kafka/bin/kafka-console-consumer.sh --topic rssfeed --bootstrap-server broker:29092 --from-beginning --max-messages 10
+
+task 4
+https://docs.confluent.io/platform/current/ksqldb/quickstart.html
+
 
 # Useful commands
 git config core.autocrlf true 
