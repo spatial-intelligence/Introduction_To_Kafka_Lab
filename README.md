@@ -4,6 +4,12 @@ In this lab, you'll learn more about Apache Kafka. The core objectives will be t
 
 Github Codespaces allows anyone with a GitHub account to have their own environment, Visual Studio Code, where Docker is also used. The following tasks could be accomplished as well without Docker, only that Apache Kafka's software would have to be installed, therefore going off the purpose of the lecture.
 
+**IMPORTANT**
+
+Remember to close Codespaces and Delete the whole repository if you wish, as otherwise Github might charge you if you leave your codespace open. To do this click on <img width="114" height="38" alt="image" src="https://github.com/user-attachments/assets/a7145668-41af-4484-98a8-5217caa3c69b" /> then click the three dots <img width="110" height="49" alt="image" src="https://github.com/user-attachments/assets/ca08f6ea-00ef-4a0c-aec7-07db80b40087" /> and select delete <img width="266" height="53" alt="image" src="https://github.com/user-attachments/assets/0378bf82-cd51-48bb-abe4-f5a8e7ae9e4a" />
+
+
+
 The tasks will show the basics from, producing and consuming from different terminals, producing the contents from a file into another file, read live from an RSS source, to using KSQL with Apache Kafka's structure.
 
 The following tasks will use the docker-compose.yaml file to run a containerized image within Docker of the Kafka broker, as well as Zookeeper, for the first three tasks. For the fourth task, as well as Kafka's images, KSQL's and KSQL CLI's image will be used. Have a look at the file and come back here for deeper understanding of each component, otherwise you can move on to the setup.
@@ -23,9 +29,9 @@ To complete this lab, you will need access to a Github account. This will allow 
 2. Go to the following repository, unless you're already in it, https://github.com/angelosbw/Introduction_To_Kafka_Lab
 3. Click fork at the top right
 4. Click fork again, and now you should be back in the repository, only that it is within your account and under the _**Introduction_To_Kafka_Lab**_ you should see _**forked from ...**_
-5. In green you should see the green button <img width="115" height="38" alt="image" src="https://github.com/user-attachments/assets/78e8b412-a75e-4aef-bdaa-176caa8a96f6" />, click it, and click on codespaces <img width="387" height="34" alt="image" src="https://github.com/user-attachments/assets/9e309b7d-d58e-45b9-87aa-5bed59027581" />
+5. In green you should see the green button <img width="115" height="38" alt="image" src="https://github.com/user-attachments/assets/78e8b412-a75e-4aef-bdaa-176caa8a96f6" />, click it, and click on codespaces<img width="387" height="34" alt="image" src="https://github.com/user-attachments/assets/9e309b7d-d58e-45b9-87aa-5bed59027581" />
 
-6. Select <img width="216" height="32" alt="image" src="https://github.com/user-attachments/assets/7ee8f5e4-1083-46ec-bd91-fd1b320a6650" />
+6. Select   <img width="216" height="32" alt="image" src="https://github.com/user-attachments/assets/7ee8f5e4-1083-46ec-bd91-fd1b320a6650" />
 and once that's loaded you should have an environment of Visual Studio code.
 7. Have a look around to make sure you've got the following files
    1. docker-compose.yaml
@@ -38,9 +44,9 @@ and once that's loaded you should have an environment of Visual Studio code.
 
 
 # Terminal sending and receiving 
-The following task will give you a grasp of how Kafka works. You'll have a look at the most basic process of how Kafka works, by having a producer sending messages to a topic, and a consumer pulling messages from that topic. This is the introduction to the next tasks, where the process will become more complex, but widely used in the real world.
+The following task will give you a grasp of how Kafka works. You'll have a look at the most basic process of Kafka's process, by having a producer sending messages to a topic, and a consumer pulling messages from that topic. This is the introduction to the next tasks, where the process will become more complex, but widely used in the real world.
 
-As a start, in the terminal, the docker compose file needs to be started. The following command will use **-d** so that it's in detached mode (ran in the background).You should see something like in the following image
+As a start, in the terminal, the docker compose file needs to be started. The following command will use **-d** so that it's in detached mode (ran in the background). This might take a minute, but you should then see something like in the following image
 ```
 docker compose up -d 
 ```
@@ -52,7 +58,7 @@ To check that the containers are running, the following command will show the co
 ```
 docker ps
 ```
-Once that's checked out correctly, a topic can be created using the following command. Through the commands of the broker container's image, a topic can be created. Make sure to change **"topic name"** to the topic you chose previously.
+Once that's checked out correctly, a topic can be created using the following command. Through the commands of the broker container's image, a topic can be created. Make sure to change **"topic name"** to the topic you chose previously as you'll be pushing messages in there.
 ```
 docker exec -it -w /opt/kafka/bin broker ./kafka-topics.sh --create --topic "topic name" --bootstrap-server broker:29092
 ```
@@ -61,17 +67,17 @@ A message will appear saying that the topic was created, but if you're intereste
 docker exec -it -w /opt/kafka/bin broker ./kafka-topics.sh --list --bootstrap-server broker:29092
 ```
 Don't worry just now if you see more topics such as **default_ksql_processing_log**, these are topics used from KSQL and Confluent to work, which will be used in later tasks.
-Once the topic has been created successfully, the following commands will help you create a consumer and a producer. the following command will create a consumer which will read all the messages to the topic that were pushed by the producer. Once clicked enter, nothing will appear just yet, this is because within the topic there's no messages yet. Remember to switch the following text **"topic name"** to the topic name you chose previously.
+Once the topic has been created successfully, the following commands will help you create a consumer and a producer. The following command will create a consumer which will read all the messages to the topic that were pushed by the producer. Once clicked enter, nothing will appear just yet, this is because within the topic there's no messages yet but very soon your messages will appear. Remember to switch the following text **"topic name"** to the topic name you chose previously.
 ```
 docker exec -it -w /opt/kafka/bin broker ./kafka-console-consumer.sh --topic "topic name" --from-beginning --bootstrap-server broker:29092
 ```
 Leave this terminal running and open a new terminal using 
 <img width="25" height="24" alt="image" src="https://github.com/user-attachments/assets/f0274dcb-44ed-459e-a433-308fed016da2" />
- at the top right of the terminal, which will create a split terminal. Insert the code below by switching **"topic name"** to the name you gave to the topic previously. This command will create a producer.
+ at the top right of the terminal, which will create a split terminal. Insert the line below by switching **"topic name"** to the name you gave to the topic previously. This command will create a producer.
 ```
 docker exec -it -w /opt/kafka/bin broker ./kafka-console-producer.sh  --topic "topic name" --bootstrap-server broker:29092
 ```
-You can write as many messages as you'd like and as you can see by clicking **enter**, the message can be seen from the producer's terminal. Once you're done, do CTRL + C to finish and close the producer.
+You can write as many messages as you'd like and as you can see by clicking **Enter**, the message can be seen from the producer's terminal. Once you're done, do CTRL + C to finish and close the producer.
 
 Well Done! You've just created your first stream from one source to another. Try again to send messages from the producer by doing the previous steps.
 **_Hint_**: Start the consumer again to read from the same topic, but take off --from-beginning, or add --max-messages 10 to only display the last 10 messages.
@@ -80,7 +86,7 @@ This tutorial was gotten from [Confluent Tutorials](https://developer.confluent.
 
 
 # Real time file updates
-The following task will give you a grasp of how Kafka can be used in the real world for social media, as well as other industry scenarios. You'll have a look at the producer reading the contents from a file and sending the contents to a topic, and a consumer pulling messages from that topic and inserting them into a new file. 
+The following task will give you a grasp of how Kafka can be used in the real world for social media, as well as other industries. You'll have a look at the producer reading the contents from a file and sending the contents to a topic, and a consumer pulling messages from that topic and inserting them into a new file. 
 
 As a start like the previous task, if you've closed docker compose or have just started from this task instead, the following commands will help you start the environment, and make sure to replace the **"topic name"** to the name you want your topic to have.
 ```
@@ -110,11 +116,13 @@ cat test.txt | docker exec -i broker /opt/kafka/bin/kafka-console-producer.sh --
 watch -n 5 'cat test.txt | docker exec -i broker /opt/kafka/bin/kafka-console-producer.sh --topic "topic name" --bootstrap-server broker:29092'
 ```
 Once that's done, look at test2.txt, you'll see the file has the same contents as test.txt
+
 **NOTE:** if you see weird items in test2.txt, its because the test.txt file is in a wrong format. At the bottom right of the page you can find UTF-16 or similar. Click it, save with encoding, UTF 8 (NOT UTF 8 with BOM).
+
 **NOTE:** if you still see weird items in test2.txt, delete all the contents from the test.txt file and test2.txt. Then write again your messages within test.txt.
 Have a try to change the text from test.txt into something different and repaste the previous code so that the contents will be sent to the topic. Though if you chose the second command, and 5 seconds have passed and you've changed the contents in test.txt, you can see them into test2.txt.
 
-Well Done! You've just created your first stream from one source to another like in a database, or social media like Messenger for example. Have some play around to see how things can be changed, for example add different commands to the producer or consumer as such.
+**Well Done!** You've just created your first stream from one source to another like in a database, or social media like Messenger for example. Have some play around to see how things can be changed, for example add different commands to the producer or consumer as such.
 
 # Reading headlines from the BBC.
 As you saw from previous examples, Kafka can be used to send or receive messages, as well as send or receive contents of files. In this task though, you'll be shown something that you can do yourself throughout your daily life. Many websites, companies nowadays give out free, or with a plan, RSS resources. These resources can be accessed through Kafka Connect, which is something used within enterprises to make this process autonomous, or through CURL commands.
@@ -176,7 +184,8 @@ docker exec -it ksqldb-cli ksql http://ksqldb-server:8088
 ```
 <img width="613" height="423" alt="image" src="https://github.com/user-attachments/assets/30f8fd2e-3c28-45da-8936-624699049a86" />
 
-So far so good, within here as said you'll be writing your SQL statements, so as a first we'll be creating a stream. A stream associates a schema with a kafka topic. You would use the **CREATE STREAM** to register a stream to a topic. If the topic doesn't exist yet, ksqlDB creates it for you. As you'll see, kafka_topic is the name of the topic, whereas value_format is the encoding in which the messages are stored in the Kafka topic, in this case JSON. Write the following and replace **locations** with the topic you wish for
+So far so good, within here as said you'll be writing your SQL statements, so as a first we'll be creating a stream. 
+A stream associates a schema with a kafka topic. You would use the **CREATE STREAM** to register a stream to a topic. If the topic doesn't exist yet, ksqlDB creates it for you. As you'll see, kafka_topic is the name of the topic, whereas value_format is the encoding in which the messages are stored in the Kafka topic, in this case JSON. Write the following and replace **locations** with the topic you wish for
 ```
 CREATE STREAM riderLocations (profileId VARCHAR, latitude DOUBLE, longitude DOUBLE)
   WITH (kafka_topic='locations', value_format='json', partitions=1);
@@ -212,7 +221,7 @@ You should see something like this
 <img width="1226" height="142" alt="image" src="https://github.com/user-attachments/assets/72646ad5-9869-411e-bf71-7e96b5c3f333" />
 
 
-Leave this terminal running and create a new split terminal by clicking <img width="26" height="35" alt="image" src="https://github.com/user-attachments/assets/345bc86d-0769-41d5-8a4c-fc29d46953d8" /> on the top right of the terminal itself. now we'll be populating the stream with some values. The following commands will again start a ksqlDB CLI instance, and within it, you'll be inserting statements.
+What you're currently looking at is like we had previously Leave this terminal running and create a new split terminal by clicking <img width="26" height="35" alt="image" src="https://github.com/user-attachments/assets/345bc86d-0769-41d5-8a4c-fc29d46953d8" /> on the top right of the terminal itself. now we'll be populating the stream with some values. The following commands will again start a ksqlDB CLI instance, and within it, you'll be inserting statements.
 ```
 docker exec -it ksqldb-cli ksql http://ksqldb-server:8088
 ```
