@@ -123,7 +123,7 @@ As a start, like previously, follow these steps to have the environment started 
 docker compose up -d
 ```
 ```
-docker logs broker
+docker ps
 ```
 ```
 docker exec -it -w /opt/kafka/bin broker ./kafka-topics.sh --create --topic "topic name" --bootstrap-server broker:29092
@@ -158,11 +158,105 @@ curl -s "https://feeds.bbci.co.uk/news/rss.xml" | grep "<title>" | sed 's/<title
 
 Well Done! You've just created your first stream from an RSS source, or like a social media as Messenger for example. Have some play around to see how things can be changed, for example finding different RSS sources online like the BBC!
 
-task 4
-https://docs.confluent.io/platform/current/ksqldb/quickstart.html
+# KSQLDB exercise
+For this exercise, we'll find out the latest location of simulated riders. As reference you can go to [Confluent's website](https://docs.confluent.io/platform/current/ksqldb/quickstart.html) which is where the following task was gathered from. You'll be using Apache Kafka, like previously, only that now KSQLDB will be used as well. If you noticed when running the docker compose file, the ksqldb-server and the ksqldb-cli images were started, this is so that now you can work, like in the industry, with Apache Kafka and a database within Kafka's topics. As a start, write the following codes within the terminal, unless you already have the docker compose running as well as made a topic.
+```
+docker compose up -d
+```
+```
+docker ps
+```
+```
+docker exec -it -w /opt/kafka/bin broker ./kafka-topics.sh --create --topic "topic name" --bootstrap-server broker:29092
+```
+Once you're sure that the topic you wished for is created, you can start working forward. 
+Now we'll be starting the ksqlDB CLI container. Within the ksql> you'll be writing your SQL queries that run on the KSQLDB server. Write the following command, and you should have something that looks like the following:
+```
+docker exec -it ksqldb-cli ksql http://ksqldb-server:8088
+```
+<img width="613" height="423" alt="image" src="https://github.com/user-attachments/assets/30f8fd2e-3c28-45da-8936-624699049a86" />
+
+So far so good, within here as said you'll be writing your SQL statements, so as a first we'll be creating a stream. A stream associates a schema with a kafka topic. You would use the **CREATE STREAM** to register a stream to a topic. If the topic doesn't exist yet, ksqlDB creates it for you. As you'll see, kafka_topic is the name of the topic, whereas value_format is the encoding in which the messages are stored in the Kafka topic, in this case JSON. Write the following and replace **locations** with the topic you wish for
+```
+CREATE STREAM riderLocations (profileId VARCHAR, latitude DOUBLE, longitude DOUBLE)
+  WITH (kafka_topic='locations', value_format='json', partitions=1);
+```
+you should see something like 
+
+<img width="673" height="137" alt="image" src="https://github.com/user-attachments/assets/323aaadc-9971-4853-a549-773690ed5557" />
+
+The goal of this task is to keep track of the latest location of the riders by using a [materialized view](https://docs.confluent.io/platform/current/ksqldb/concepts/materialized-views.html). Run the following command to create the **currentLocation** table.
+```
+-- Create the currentLocation table
+CREATE TABLE currentLocation AS
+  SELECT profileId,
+         LATEST_BY_OFFSET(latitude) AS la,
+         LATEST_BY_OFFSET(longitude) AS lo
+  FROM riderlocations
+  GROUP BY profileId
+  EMIT CHANGES;
+```
+you should see something like this 
+
+<img width="381" height="309" alt="image" src="https://github.com/user-attachments/assets/1a1771fa-101a-4000-8bf6-596f8a108f99" />
+
+CTAS stands for **CREATE TABLE AS SELECT**, just an abbreviation basically. Now we'll be running a push query, and seeing it displayed within the **currentLocation table**. Run the following command to first pull the table's values and such:
+```
+-- Mountain View lat, long: 37.4133, -122.1162
+SELECT * FROM riderLocations
+  WHERE GEO_DISTANCE(latitude, longitude, 37.4133, -122.1162) <= 5 EMIT CHANGES;
+```
+You should see something like this 
 
 
-# Useful commands
+<img width="1226" height="142" alt="image" src="https://github.com/user-attachments/assets/72646ad5-9869-411e-bf71-7e96b5c3f333" />
+
+
+Leave this terminal running and create a new split terminal by clicking <img width="26" height="35" alt="image" src="https://github.com/user-attachments/assets/345bc86d-0769-41d5-8a4c-fc29d46953d8" /> on the top right of the terminal itself. now we'll be populating the stream with some values. The following commands will again start a ksqlDB CLI instance, and within it, you'll be inserting statements.
+```
+docker exec -it ksqldb-cli ksql http://ksqldb-server:8088
+```
+```
+INSERT INTO riderLocations (profileId, latitude, longitude) VALUES ('c2309eec', 37.7877, -122.4205);
+INSERT INTO riderLocations (profileId, latitude, longitude) VALUES ('18f4ea86', 37.3903, -122.0643);
+INSERT INTO riderLocations (profileId, latitude, longitude) VALUES ('4ab5cbad', 37.3952, -122.0813);
+INSERT INTO riderLocations (profileId, latitude, longitude) VALUES ('8b6eae59', 37.3944, -122.0813);
+INSERT INTO riderLocations (profileId, latitude, longitude) VALUES ('4a7c7b41', 37.4049, -122.0822);
+INSERT INTO riderLocations (profileId, latitude, longitude) VALUES ('4ddad000', 37.7857, -122.4011);
+```
+Once you click enter, you can see that only three rows appear in the first terminal as such 
+
+
+<img width="930" height="113" alt="image" src="https://github.com/user-attachments/assets/102c5102-ccb7-43b3-82b1-5a7dcea07909" />
+
+Even though you've just inserted five statements, ksqlDB automatically filters the results because of the previous query you inserted. Try out with a normal Kafka consumer in the second terminal, where you wrote your last insert statements.
+```
+docker exec broker /opt/kafka/bin/kafka-console-consumer.sh --topic locations --bootstrap-serv
+er broker:29092 --from-beginning --max-messages 5
+```
+and you should see something like
+
+
+<img width="478" height="101" alt="image" src="https://github.com/user-attachments/assets/f47580ad-988e-46dd-80e8-9047642c7dc5" />
+
+This is because the Kafka Consumer doesn't filter the results, as all the inserted statements are still within the topic, but in this case, ksqlDB filters them unlike Kafka.
+Well done, you've just created your first Database filtering within Kafka Topics. Try out different things but once you're done, clean the space by doing CTRL + C and then writing **exit** you should have something like this
+
+
+<img width="140" height="53" alt="image" src="https://github.com/user-attachments/assets/e4a92b26-b838-4980-a7d7-14773d485d2f" />
+
+# Closing the workspace, IMPORTANT
+
+
+
+Remember to close Codespaces and Delete the whole repository if you wish, as otherwise Github might charge you if you leave your codespace open. To do this click on <img width="114" height="38" alt="image" src="https://github.com/user-attachments/assets/a7145668-41af-4484-98a8-5217caa3c69b" /> then click the three dots <img width="110" height="49" alt="image" src="https://github.com/user-attachments/assets/ca08f6ea-00ef-4a0c-aec7-07db80b40087" /> and select delete <img width="266" height="53" alt="image" src="https://github.com/user-attachments/assets/0378bf82-cd51-48bb-abe4-f5a8e7ae9e4a" />
+
+
+
+
+
+
+#.  Useful commands
 git config core.autocrlf true 
 git restore 
 .git status
