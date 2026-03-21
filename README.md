@@ -1,8 +1,10 @@
 # Introduction_To_Kafka_Lab
 
-In this lab, you'll learn more about Apache Kafka. The core objectives will be to understand it's structure, how its producers and consumers work, how it can be used in the real world, and how you could use it yourself. The lab involves taking part in four separate tasks, showing the possibilities Apache Kafka can create for individuals, companies, or users in general. For the purpose on keeping this lab as simple as possible, as well as allowing everyone to participate and gather further understanding, Github Codespaces is chosen. The following commands you will try will be working for Linux environments. For Windows, some codes might give issues resulting in unexpected errors because of docker as well.
+In this lab, you'll learn more about Apache Kafka. The core objectives will be to understand it's structure, how its producers and consumers work, how it can be used in the real world, and how you could use it yourself. 
 
-Github Codespaces allows anyone with a GitHub account to have their own environment, Visual Studio Code, where Docker is also used. The following tasks could be accomplished as well without Docker, only that Apache Kafka's software would have to be installed, therefore going off the purpose of the lecture.
+The lab involves taking part in four separate tasks, showing the possibilities Apache Kafka can create for individuals, companies, or users in general. For the purpose on keeping this lab as simple as possible, as well as allowing everyone to participate and gather further understanding, Github Codespaces is chosen. The following commands you will try will be working for Linux environments if you were to use them outside of GitHub Codespaces. For Windows, some commands might give issues resulting in unexpected errors.
+
+Github Codespaces allows anyone with a GitHub account to have their own environment, Visual Studio Code, where Docker is also used. The following tasks could be accomplished as well without Docker, only that Apache Kafka's software would have to be installed, as well as other things, therefore going off the purpose of the lecture.
 
 The tasks will show the basics from, producing and consuming from different terminals, producing the contents from a file into another file, read live from an RSS source, to using KSQL with Apache Kafka's structure.
 
@@ -30,8 +32,10 @@ and once that's loaded you should have an environment of Visual Studio code.
 7. Have a look around to make sure you've got the following files
    1. docker-compose.yaml
    2. readme.md
-   3. test.txt
-   4. test2.txt
+   3. consumer
+      3.1. output.txt
+   4. producer
+      4.1. input.txt
 8. Once that's all checked out, you may start the tasks, if you have any questions just raise your hand or ask me!
 
 ### **IMPORTANT**
@@ -57,14 +61,17 @@ docker ps
 ```
 
 ## Making a topic
-Once that's checked out correctly, through the commands of the broker container's image, a topic can be created using the following command. For each of thes upcoming tasks, a predefined topic name is given, but you can change it as you please. In this task the topic will be **task1** and you'll be pushing and pulling messages within this topic.
+Once that's checked out correctly, through the commands of the broker container's image, a topic can be created using the following command. For each of these upcoming tasks, a predefined topic name is given, but you can change it as you please. In this task the topic will be **task1** and you'll be pushing and pulling messages within this topic.
 ```
 docker exec -it -w /opt/kafka/bin broker ./kafka-topics.sh --create --topic task1 --bootstrap-server broker:29092
 ```
+
 A message will appear saying that the topic was created, but if you're interested to confirm so in more detail, or see what other topics are available, the following command will display the whole list of topics available:
+
 ```
 docker exec -it -w /opt/kafka/bin broker ./kafka-topics.sh --list --bootstrap-server broker:29092
 ```
+
 Don't worry just now if you see more topics such as **default_ksql_processing_log**, these are topics used from KSQLDB and Confluent to work, which will be used in later tasks.
 Once the topic has been created successfully, the following commands will help you create a consumer and a producer. 
 
@@ -82,10 +89,10 @@ Insert the command below which will create a producer.
 ```
 docker exec -it -w /opt/kafka/bin broker ./kafka-console-producer.sh  --topic "topic name" --bootstrap-server broker:29092
 ```
-You can write as many messages as you'd like and as you can see by clicking **Enter**, the message can be seen from the producer's terminal onto the consumer's terminal. Once you're done, do CTRL + C to finish and close the producer and consumer.
+You can write as many messages as you'd like and as you can see by clicking **Enter**, the message can be seen from the producer's terminal onto the consumer's terminal. Once you're done, do CTRL + C within each of the terminals to finish and close the producer and consumer.
 
 Well Done! You've just created your first stream from one source to another. Try again to send messages from the producer by doing the previous steps.
-**_Hint_**: Start the consumer again to read from the same topic, but take off --from-beginning, or add --max-messages 10 to only display the last 10 messages.
+**_Hint_**: Start the consumer again to read from the same topic, but take off **--from-beginning**, or add **--max-messages 10** to only display the last 10 messages.
 
 This tutorial was based on [Confluent Tutorials](https://developer.confluent.io/confluent-tutorials/kafka-on-docker/?utm_medium=sem&utm_source=google&utm_campaign=ch.sem_br.nonbrand_tp.prs_tgt.dsa_mt.dsa_rgn.emea_sbrgn.uki_lng.eng_dv.all_con.confluent-developer&utm_term=&creative=&device=c&placement=&gad_source=1&gad_campaignid=19560855027&gbraid=0AAAAADRv2c3SGbEo5llRvcdu1HsLIjo56&gclid=CjwKCAiAtq_NBhA_EiwA78nNWEr4Qv6n3Cx9VrBJVuqtQCSGg2yhUCyuibhQ5gw1xKXar--W6a_GchoCY9EQAvD_BwE).
 
@@ -96,7 +103,7 @@ The following task will give you a grasp of how Kafka can be used in the real wo
 For the following task, you should still have two terminals open, otherwise click on the button <img width="25" height="24" alt="image" src="https://github.com/user-attachments/assets/f0274dcb-44ed-459e-a433-308fed016da2" /> to have two terminals splitting the screen.
 
 ## Looking at the txt files
-Open the text files within the folders of the **producer** and **consumer**, you'll see they're both currently empty. Keep both open in a split screen and within **input.txt** write all the messages you want by making a new message with the button **Enter**. Within **output.txt**, every message that's written in **input.txt** will appear in **output.txt** once the producer has pushed the contents to the topic. Write some messages within **input.txt** just like this:
+Open the text files within the folders of the **producer** and **consumer**, you'll see they're both currently empty. Keep both open in a split screen and within **input.txt** write all the messages you want by making a new message with the button **Enter**. Every message that's written in **input.txt** will appear in **output.txt** once the producer has pushed the contents to the topic. Write some messages within **input.txt** just like this:
 
 <img width="1707" height="895" alt="image" src="https://github.com/user-attachments/assets/633abda3-ce91-4c74-b4a4-98e03cbf7c63" />
 
@@ -113,7 +120,7 @@ docker exec broker /opt/kafka/bin/kafka-console-consumer.sh --topic fileUpdates 
 Leave this terminal open, as now you'll be working onto the second terminal. 
 
 ## Producer
-Once you've started the consumer use the following commands at your choice, where the first will get you to have a producer pushing the messages once, or the second one, where the producer will keep on pushing all the contents from **input.txt** every 5 seconds. If the second command is chosen, just click CTRL+C within the same terminal to exit from the shell. 
+Once you've started the consumer use the following commands at your choice within the second terminal, where the first will get you to have a producer pushing the messages once, or the second one, where the producer will keep on pushing all the contents from **input.txt** every 5 seconds. If the second command is chosen, just click CTRL+C within the same terminal you just wrote the command to exit from the shell. 
 ```
 cat producer/input.txt | docker exec -i broker /opt/kafka/bin/kafka-console-producer.sh --topic fileUpdates --bootstrap-server broker:29092
 ```
@@ -121,7 +128,7 @@ cat producer/input.txt | docker exec -i broker /opt/kafka/bin/kafka-console-prod
 watch -n 5 'cat producer/input.txt | docker exec -i broker /opt/kafka/bin/kafka-console-producer.sh --topic fileUpdates --bootstrap-server broker:29092'
 ```
 
-## Seeing final result
+## Seeing the final result
 Once that's done, if you had the text files split like in the previous screenshot, you should now see all the contents have been copied from **input.txt** to **output.txt** just like this:
 
 <img width="1703" height="692" alt="image" src="https://github.com/user-attachments/assets/51580bc2-6fda-44a6-998a-915726dc70b5" />
@@ -209,7 +216,7 @@ docker exec -it ksqldb-cli ksql http://ksqldb-server:8088
 
 ## Creating a stream
 So far so good, within here as said you'll be writing your SQL statements, so as a first we'll be creating a stream. 
-A stream associates a schema with a kafka topic. You would use the **CREATE STREAM** to register a stream to a topic. If the topic doesn't exist yet, ksqlDB creates it for you. As you'll see, kafka_topic is the name of the topic, whereas value_format is the encoding in which the messages are stored in the Kafka topic, in this case JSON. Write the following and replace **locations** with the topic you wish for
+A stream associates a schema with a kafka topic. You would use the **CREATE STREAM** to register a stream to a topic. If the topic doesn't exist yet, ksqlDB creates it for you. As you'll see, kafka_topic is the name of the topic, whereas value_format is the encoding in which the messages are stored in the Kafka topic, in this case JSON. Write the following command
 ```
 CREATE STREAM riderLocations (profileId VARCHAR, latitude DOUBLE, longitude DOUBLE)
   WITH (kafka_topic='locations', value_format='json', partitions=1);
@@ -234,6 +241,7 @@ you should see something like this
 
 <img width="381" height="309" alt="image" src="https://github.com/user-attachments/assets/1a1771fa-101a-4000-8bf6-596f8a108f99" />
 
+
 CTAS stands for **CREATE TABLE AS SELECT**, just an abbreviation basically. Now we'll be running a push query, and seeing it displayed within the **currentLocation table**. 
 
 ## Pulling the table 
@@ -248,10 +256,11 @@ You should see something like this
 <img width="1226" height="142" alt="image" src="https://github.com/user-attachments/assets/72646ad5-9869-411e-bf71-7e96b5c3f333" />
 
 
-What you're currently looking at is like we had previously. Leave this terminal running and move forward 
+What you're currently looking at is like we had previously with Kafka's consumer, waiting for messages to be pushed to the topic so it can pull them. Leave this terminal running and move forward 
 
 ## Populating the stream
-Now we'll be populating the stream with some values. The following commands will again start a ksqlDB CLI instance, and within it, you'll be inserting statements.
+Now we'll be populating the stream with some values. Within the second terminal, write the following commands so that we start a ksqlDB CLI instance, and within it, you'll be inserting statements.
+
 ```
 docker exec -it ksqldb-cli ksql http://ksqldb-server:8088
 ```
@@ -263,6 +272,7 @@ INSERT INTO riderLocations (profileId, latitude, longitude) VALUES ('8b6eae59', 
 INSERT INTO riderLocations (profileId, latitude, longitude) VALUES ('4a7c7b41', 37.4049, -122.0822);
 INSERT INTO riderLocations (profileId, latitude, longitude) VALUES ('4ddad000', 37.7857, -122.4011);
 ```
+
 Once you click enter, you can see that only three rows appear in the first terminal as such 
 
 
@@ -272,17 +282,19 @@ Once you click enter, you can see that only three rows appear in the first termi
 Even though you've just inserted five statements, ksqlDB automatically filters the results because of the previous query you inserted. 
 
 ## Kafka consumer instead of the ksql 
-Try out with a normal Kafka consumer in the second terminal, by writing **exit** to go out from ksql's shell and then write the following command as such.
+Try out with a normal Kafka consumer in the second terminal (where you wrote your INSERT statements), by writing **exit** to go out from ksql's shell and then write the following command as such.
+
 ```
 docker exec broker /opt/kafka/bin/kafka-console-consumer.sh --topic locations --bootstrap-server broker:29092 --from-beginning --max-messages 5
 ```
+
 and you should see something like this:
 
 <img width="1401" height="417" alt="image" src="https://github.com/user-attachments/assets/f236d249-c587-40ac-b3cb-af6cf5e749b6" />
 
 
-This is because the Kafka Consumer doesn't filter the results, as all the inserted statements are still within the topic, but in this case, ksqlDB filters them unlike Kafka.
-Well done, you've just created your first Database filtering within Kafka Topics. Try out different things but once you're done, clean the space by doing CTRL + C and then writing **exit** you should have something like this
+As you can see, the ksql table on the left has three values, whereas the Kafka Consumer has five. This is because the Kafka Consumer doesn't filter the results, as all the inserted statements are still within the topic, but in this case, ksqlDB filters them and displays the results accordingly.
+Well done, you've just created your first Database filtering within Kafka Topics. Try out different things but once you're done, clean the space by doing CTRL + C within each terminal where prompted, then writing **exit** and you should have something like this
 
 
 <img width="140" height="53" alt="image" src="https://github.com/user-attachments/assets/e4a92b26-b838-4980-a7d7-14773d485d2f" />
@@ -292,13 +304,3 @@ Well done, you've just created your first Database filtering within Kafka Topics
 
 
 Remember to close Codespaces and Delete the whole repository if you wish, as otherwise Github might charge you if you leave your codespace open. To do this click on <img width="114" height="38" alt="image" src="https://github.com/user-attachments/assets/a7145668-41af-4484-98a8-5217caa3c69b" /> then click the three dots <img width="110" height="49" alt="image" src="https://github.com/user-attachments/assets/ca08f6ea-00ef-4a0c-aec7-07db80b40087" /> and select delete <img width="266" height="53" alt="image" src="https://github.com/user-attachments/assets/0378bf82-cd51-48bb-abe4-f5a8e7ae9e4a" />
-
-
-
-
-
-
-#.  Useful commands
-git config core.autocrlf true 
-git restore 
-.git status
