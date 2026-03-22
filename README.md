@@ -87,7 +87,7 @@ Leave this terminal running and open a new terminal using
 ## Producer
 Insert the command below which will create a producer.
 ```
-docker exec -it -w /opt/kafka/bin broker ./kafka-console-producer.sh  --topic "topic name" --bootstrap-server broker:29092
+docker exec -it -w /opt/kafka/bin broker ./kafka-console-producer.sh  --topic task1 --bootstrap-server broker:29092
 ```
 You can write as many messages as you'd like and as you can see by clicking **Enter**, the message can be seen from the producer's terminal onto the consumer's terminal. Once you're done, do CTRL + C within each of the terminals to finish and close the producer and consumer.
 
